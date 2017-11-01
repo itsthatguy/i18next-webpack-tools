@@ -3,9 +3,6 @@ const { writeFileSync } = require('fs');
 
 const matcher = (source) => {
   if (!source) return;
-  // NOTE:
-  // - this doesn't work for a function that returns a string
-  // - does not evalute code, so variables will be returned as the variable name
   const transRx = /\<Trans\>(.+)\<\/Trans\>/
   const transComponents = source.match(new RegExp(transRx, 'g'));
   return transComponents && transComponents.map((component) => {
