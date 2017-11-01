@@ -1,5 +1,5 @@
-# base-react-apps/react
+# nauto-i18n
 
-Includes
+Main file: `loader.js`
 
-- react 15.5.4
+If you run `npm start` make sure to *NOT* commit your changes to the locales
