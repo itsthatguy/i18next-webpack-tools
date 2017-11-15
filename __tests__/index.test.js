@@ -1,8 +1,8 @@
-jest.mock('fs');
+jest.mock('fs-extra');
 
 const path = require('path');
 const fs = require.requireActual('fs');
-const { compact, filter,find, flatten } = require('lodash');
+const { compact, filter, find, flatten } = require('lodash');
 const loader = require('../loader');
 
 const fileSource = (relativePath) => {
@@ -11,13 +11,12 @@ const fileSource = (relativePath) => {
 };
 
 describe('doing the work', () => {
-  // describe('loading source files');
   it('finds Trans Component text', () => {
     const oneThing = fileSource('./fixtures/one-thing.js');
     const twoThings = fileSource('./fixtures/two-things.js');
     const oneMatches = loader.matcher(oneThing);
     const twoMatches = loader.matcher(twoThings);
-    expect(oneMatches).toEqual(expect.arrayContaining(['Hello friend dude']));
+    expect(oneMatches).toEqual(expect.arrayContaining(['Hello from one thing']));
     expect(twoMatches).toEqual(expect.arrayContaining(['Hello friend dude', 'Hello']));
   });
 
@@ -27,12 +26,15 @@ describe('doing the work', () => {
     it('finds existing terms', () => {
       const index = fileSource('./fixtures/two-things.js');
       const matches = loader.matcher(index);
-      const locales = loader.localeFiles();
+      const languages = loader.languages();
 
       let matchCounter = 0;
-      locales.forEach((file) => matches.forEach((term) => {
-        if (loader.findTerm(term, file.contents)) matchCounter++;
-      }));
+      languages.forEach((dir) => {
+        const contents = loader.loadTranslationFile(dir);
+        matches.forEach((term) => {
+          if (loader.findTerm(term, contents)) matchCounter++;
+        })
+      });
       expect(matchCounter).toEqual(3);
     });
 
@@ -46,9 +48,9 @@ describe('doing the work', () => {
       });
       newContents = compact(flatten(newContents));
 
-      const en = find(newContents, { path: './lib/locales/en/common.json' });
-      const de = find(newContents, { path: './lib/locales/de/common.json' });
-      const ja = find(newContents, { path: './lib/locales/ja/common.json' });
+      const en = find(newContents, { dir: 'en' });
+      const de = find(newContents, { dir: 'de' });
+      const ja = find(newContents, { dir: 'ja' });
       const enHello = filter(en.contents, { term: 'Hello' });
       const deHello = filter(de.contents, { term: 'Hello' });
       const jaHello = filter(ja.contents, { term: 'Hello' });
@@ -68,9 +70,9 @@ describe('doing the work', () => {
       });
       newContents = compact(flatten(newContents));
 
-      const en = find(newContents, { path: './lib/locales/en/common.json' });
-      const de = find(newContents, { path: './lib/locales/de/common.json' });
-      const ja = find(newContents, { path: './lib/locales/ja/common.json' });
+      const en = find(newContents, { dir: 'en' });
+      const de = find(newContents, { dir: 'de' });
+      const ja = find(newContents, { dir: 'ja' });
 
       expect(en.contents).toContainEqual({ term: 'Hello friend dude', definition: '' });
       expect(de.contents).toContainEqual({ term: 'Hello friend dude', definition: '' });
