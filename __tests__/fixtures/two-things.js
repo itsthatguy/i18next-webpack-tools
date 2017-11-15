@@ -1,4 +1,5 @@
 import React from 'react';
+import OneThing from './one-thing';
 
 export default class MyComponent {
   render() {
@@ -6,6 +7,7 @@ export default class MyComponent {
       <div>
         {t('Hello friend dude')}
         {t('Hello')}
+        <OneThing />
       </div>
     );
   }

@@ -1,26 +1,33 @@
 const { find } = require('lodash');
-const { writeFileSync } = require('fs');
+const { outputFileSync, readdirSync, realpathSync, writeJsonSync } = require('fs-extra');
+const { join, resolve } = require('path');
+
+const APP_ROOT = realpathSync(process.cwd()) || process.cwd();
+let translationsDir = resolve(APP_ROOT, 'lib/locales');
 
 const matcher = (source) => {
   if (!source) return;
-  const transRx = /t(\(['"`]).+(['"`]\))/
+  const transRx = /.*?t\(['"`](.+)['"`]\)+.*/
   const transComponents = source.match(new RegExp(transRx, 'g'));
-  return transComponents && transComponents.map((component) => {
-    return component.match(transRx)[1];
-  });
+  return transComponents ? transComponents.map((component) => {
+    const match = component.match(transRx)[1];
+    return match;
+  }) : [];
 };
 
-// NOTE: Temporary for POC
-// Should search for files
-const localeFiles = () => {
-  const en = require('./lib/locales/en/common.json');
-  const de = require('./lib/locales/de/common.json');
-  const ja = require('./lib/locales/ja/common.json');
-  return [
-    { path: './lib/locales/en/common.json', contents: en },
-    { path: './lib/locales/de/common.json', contents: de },
-    { path: './lib/locales/ja/common.json', contents: ja }
-  ];
+const loadTranslationFile = (language) => {
+  const filePath = join(translationsDir, language, 'common.json');
+  try {
+    if (require.resolve(filePath)) delete require.cache[filePath];
+    return require(filePath);
+  } catch (err) {
+    outputFileSync(filePath, '');
+    return false;
+  }
+};
+
+const languages = () => {
+  return readdirSync(translationsDir);
 };
 
 const findTerm = (term, file) => {
@@ -29,30 +36,32 @@ const findTerm = (term, file) => {
 };
 
 const tryToAddTerm = (term) => {
-  return localeFiles().map((file) => {
-    const match = findTerm(term, file.contents);
+  return languages().map((dir) => {
+    const translations = loadTranslationFile(dir);
+    const match = findTerm(term, translations);
     if (!match) {
-      const newContents = addTerm(term, file);
-      return Object.assign({}, file, { contents: newContents });
+      const filePath = join(translationsDir, dir, 'common.json');
+      const newContents = addTerm(filePath, term, translations);
+      return Object.assign({}, { dir: dir, contents: newContents });
     }
   });
 };
 
-const addTerm = (term, file) => {
-  const newContents = [ ...file.contents, { term, definition: '' } ];
+const addTerm = (filePath, term, translations) => {
+  const newContents = [ ...translations, { term, definition: '' } ];
 
-  return writeFileSync(file.path, JSON.stringify(newContents, null, 2), (err) => {
-    if (err) return console.error(err);
-  });
+  return writeJsonSync(filePath, newContents, { spaces: 2 });
 };
 
 module.exports = function (source, map) {
-  const matches = matcher(source);
+  const matches = matcher(source)
+
   matches && matches.forEach((term) => tryToAddTerm(term));
   this.callback(null, source, map);
 };
 
 module.exports.matcher = matcher;
-module.exports.localeFiles = localeFiles;
+module.exports.languages = languages;
 module.exports.findTerm = findTerm;
 module.exports.tryToAddTerm = tryToAddTerm;
+module.exports.loadTranslationFile = loadTranslationFile;
