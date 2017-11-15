@@ -3,7 +3,7 @@ const { writeFileSync } = require('fs');
 
 const matcher = (source) => {
   if (!source) return;
-  const transRx = /\<Trans\>(.+)\<\/Trans\>/
+  const transRx = /t(\(['"`]).+(['"`]\))/
   const transComponents = source.match(new RegExp(transRx, 'g'));
   return transComponents && transComponents.map((component) => {
     return component.match(transRx)[1];
