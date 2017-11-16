@@ -1,6 +1,7 @@
 const { find } = require('lodash');
 const { outputFileSync, readdirSync, realpathSync, writeJsonSync } = require('fs-extra');
 const { join, resolve } = require('path');
+const esprima = require('esprima');
 
 const APP_ROOT = realpathSync(process.cwd()) || process.cwd();
 let translationsDir = resolve(APP_ROOT, 'lib/locales');
@@ -53,10 +54,21 @@ const addTerm = (filePath, term, translations) => {
   return writeJsonSync(filePath, newContents, { spaces: 2 });
 };
 
-module.exports = function (source, map) {
-  const matches = matcher(source)
+const findTs = (source) => {
+  const ts = esprima.parseScript(source).body;
+  // algorithm
+  // check for array or object
+  // - recurse
+  return ts;
+};
 
-  matches && matches.forEach((term) => tryToAddTerm(term));
+module.exports = function (source, map) {
+  const ts = findTs(source);
+  // console.log(require('util').inspect(ts, false, null));
+
+  // const matches = matcher(source)
+
+  // matches && matches.forEach((term) => tryToAddTerm(term));
   this.callback(null, source, map);
 };
 
@@ -65,3 +77,4 @@ module.exports.languages = languages;
 module.exports.findTerm = findTerm;
 module.exports.tryToAddTerm = tryToAddTerm;
 module.exports.loadTranslationFile = loadTranslationFile;
+module.exports.findTs = findTs;

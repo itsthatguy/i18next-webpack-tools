@@ -16,6 +16,11 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /(node_modules)/,
+        use: path.resolve(__dirname, 'loader.js'),
+      },
+      {
+        test: /\.jsx?$/,
+        exclude: /(node_modules)/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -23,11 +28,6 @@ module.exports = {
           }
         }
       },
-      {
-        test: /\.jsx?$/,
-        exclude: /(node_modules)/,
-        use: path.resolve(__dirname, 'loader.js'),
-      }
     ]
   },
   plugins: [

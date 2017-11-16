@@ -1,8 +1,11 @@
 import React from 'react';
+import { translate } from 'react-i18next';
 import OneThing from './one-thing';
 
-export default class MyComponent {
+class MyComponent {
   render() {
+    const { t } = this.props;
+
     return (
       <div>
         {t('Hello friend dude')}
@@ -12,3 +15,5 @@ export default class MyComponent {
     );
   }
 }
+
+export default translate('common')(MyComponent);

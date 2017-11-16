@@ -1,8 +1,10 @@
 import React from 'react';
+import { translate } from 'react-i18next';
 
-const foo = t('dang');
-export default class MyComponent {
+class MyComponent {
   render() {
+    const { t } = this.props;
+
     const text = 'Hello';
     const text2 = t('Hello butt');
     return (
@@ -14,3 +16,5 @@ export default class MyComponent {
     );
   }
 }
+
+export default translate('common')(MyComponent);
