@@ -15,7 +15,7 @@
     "build": "npm run clean && $(npm bin)/tsc --project tsconfig.json",
     "clean": "rm -rf ./dist",
     "test": "jest",
-    "prepublish-only": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@types/fs-extra": "^4.0.5",
