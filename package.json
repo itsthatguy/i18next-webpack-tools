@@ -1,5 +1,5 @@
 {
-  "name": "nauto-i18n",
+  "name": "@nauto/nauto-i18n",
   "version": "0.0.0",
   "main": "dist/src/index.js",
   "license": "MIT",
