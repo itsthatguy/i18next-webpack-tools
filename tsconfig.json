@@ -21,13 +21,6 @@
     "node_modules",
     "__tests__/fixtures/**/*"
   ],
-  // "files": [
-  //   "./__tests__/fixtures/index.tsx",
-  //   "./__tests__/fixtures/parent.tsx",
-  //   "./__tests__/fixtures/child.tsx",
-  //   "./src/i18n-json-transform-webpack-plugin.ts",
-  //   "./src/i18n-json-webpack-loader.ts"
-  // ],
   "awesomeTypescriptLoaderOptions": {
     "useBabel": true,
     "useCache": false

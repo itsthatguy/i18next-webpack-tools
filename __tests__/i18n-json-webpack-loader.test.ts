@@ -2,6 +2,7 @@ jest.mock('fs-extra');
 
 import path from 'path';
 import { compact, filter, find, flatten } from 'lodash';
+import { transpile } from 'typescript';
 import {
   findTerms,
   findTranslationFunctions,
@@ -14,8 +15,10 @@ import {
 const fs = require.requireActual('fs');
 
 const parseFile = (relativePath) => {
+  const { compilerOptions } = require('../tsconfig.json');
   const file = fs.readFileSync(path.resolve(__dirname, relativePath), 'utf8');
-  const tree = parser(file);
+  const source = transpile(file, compilerOptions);
+  const tree = parser(source);
   return tree;
 };
 

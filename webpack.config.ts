@@ -2,7 +2,7 @@ import { resolve } from 'path';
 import * as webpack from 'webpack';
 import * as merge from 'webpack-merge';
 import * as HtmlWebpackPlugin from 'html-webpack-plugin';
-import { i18nJsonLoader, I18nJsonTransformPlugin, languages } from './src/';
+import { i18nJsonLoader, I18nJsonTransformPlugin, languages } from './dist/';
 import * as CaseSensitivePathsPlugin from 'case-sensitive-paths-webpack-plugin';
 import * as ProgressBarPlugin from 'progress-bar-webpack-plugin';
 
@@ -34,7 +34,7 @@ const app = {
         test: /\.tsx?$/,
         exclude: /(node_modules)/,
         use: {
-          loader: resolve(__dirname, './dist/i18n-json-webpack-loader'),
+          loader: resolve(__dirname, './dist/i18n-json-webpack-loader.js'),
           options: {
             translationFunction: 't'
           }

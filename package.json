@@ -4,12 +4,18 @@
   "main": "dist/src/index.js",
   "license": "MIT",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "dist/i18n-json-transform-webpack-plugin.js",
+    "dist/i18n-json-webpack-loader.js"
+  ],
   "scripts": {
     "dev": "webpack-dev-server",
     "start": "webpack",
     "build": "npm run clean && $(npm bin)/tsc --project tsconfig.json",
     "clean": "rm -rf ./dist",
-    "test": "jest"
+    "test": "jest",
+    "prepublish-only": "npm run build"
   },
   "devDependencies": {
     "@types/fs-extra": "^4.0.5",
