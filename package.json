@@ -1,6 +1,6 @@
 {
   "name": "i18n-webpack-tools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/src/index.js",
   "license": "MIT",
   "types": "dist/index.d.ts",
