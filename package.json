@@ -1,5 +1,5 @@
 {
-  "name": "@nauto/nauto-i18n",
+  "name": "i18n-webpack-tools",
   "version": "0.0.1",
   "main": "dist/src/index.js",
   "license": "MIT",
