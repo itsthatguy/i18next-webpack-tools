@@ -1,10 +1,18 @@
-const { join, resolve } = require('path');
+const path = require('path');
+
 module.exports = {
-  collectCoverageFrom: [join(__dirname, 'src/**/*.{js,jsx}')],
-  testMatch: [
-    '**/__tests__/**/?(*.)(spec|test).js?(x)',
-  ],
   transform: {
-    '^.+\\.(js|jsx)$': require.resolve('babel-jest'),
+    '.(ts|tsx)': '<rootDir>/node_modules/ts-jest/preprocessor.js'
   },
+  testMatch: ['<rootDir>/__tests__/**/*.test.ts'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],
+  unmockedModulePathPatterns: [
+    'react',
+    'react-dom',
+    'react-addons-test-utils',
+    'enzyme',
+    'lodash'
+  ],
+  moduleDirectories: ['node_modules/', 'src/'],
+  setupFiles: ['raf/polyfill'],
 };

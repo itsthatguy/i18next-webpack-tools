@@ -1,0 +1,8 @@
+node_modules/
+dist/app/
+.awcache/
+public/
+__tests__/
+__mocks__/
+lib/
+.DS_Store
