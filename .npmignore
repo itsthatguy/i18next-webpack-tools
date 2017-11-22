@@ -1,8 +1,12 @@
 node_modules/
-dist/app/
-.awcache/
 public/
 __tests__/
 __mocks__/
 lib/
+dist/app/
+jest.config.json
+tsconfig.json
+tslint.json
+webpack.config.ts
 .DS_Store
+.awcache/

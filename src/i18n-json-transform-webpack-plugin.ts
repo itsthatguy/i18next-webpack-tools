@@ -26,16 +26,20 @@ const transform = (buffer) => {
   return Buffer.from(JSON.stringify(newContent, null, 2));
 };
 
-const defaultPatterns = [{
+const defaultPattern = {
   context: 'lib/locales/',
   from: '**/*.json',
   to: 'locales/',
   force: true,
   transform,
-}];
+};
 
-function i18nJsonTransform (patterns = defaultPatterns, options = {}) {
-  const copyPlugin = new CopyPlugin(patterns, options);
+function i18nJsonTransform (patterns = [{}], options = {}) {
+  const mergedPatterns = patterns.map((pattern) => {
+    return { ...defaultPattern, ...pattern };
+  });
+
+  const copyPlugin = new CopyPlugin(mergedPatterns, options);
   this.apply = copyPlugin.apply;
 }
 
