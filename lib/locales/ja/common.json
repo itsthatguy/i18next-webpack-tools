@@ -2,5 +2,21 @@
   {
     "term": "Hello",
     "definition": "Japanese Hello"
+  },
+  {
+    "term": "Hello {{name}}",
+    "definition": ""
+  },
+  {
+    "term": "Text with a <div>Div</div>",
+    "definition": ""
+  },
+  {
+    "term": "Hello from {{one}} thing's file",
+    "definition": ""
+  },
+  {
+    "term": "{{count}} dogs",
+    "definition": ""
   }
 ]
