@@ -1,13 +1,16 @@
 {
   "name": "i18next-webpack-tools",
   "version": "0.0.3",
-  "main": "dist/src/index.js",
+  "main": "dist/index.js",
   "license": "MIT",
   "types": "dist/index.d.ts",
   "files": [
     "dist/index.js",
+    "dist/index.js.map",
     "dist/i18n-json-transform-webpack-plugin.js",
-    "dist/i18n-json-webpack-loader.js"
+    "dist/i18n-json-transform-webpack-plugin.js.map",
+    "dist/i18n-json-webpack-loader.js",
+    "dist/i18n-json-webpack-loader.js.map"
   ],
   "scripts": {
     "dev": "webpack-dev-server",

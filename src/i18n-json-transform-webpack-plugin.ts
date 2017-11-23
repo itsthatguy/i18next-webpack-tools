@@ -21,6 +21,8 @@ const transform = (buffer) => {
         other && { [`${term}_plural`]: plural },
       );
     }
+
+    return Object.assign(result, { term });
   }, {});
 
   return Buffer.from(JSON.stringify(newContent, null, 2));
@@ -34,7 +36,7 @@ const defaultPattern = {
   transform,
 };
 
-function i18nJsonTransform (patterns = [{}], options = {}) {
+function I18nJsonTransform (patterns = [{}], options = {}) {
   const mergedPatterns = patterns.map((pattern) => {
     return { ...defaultPattern, ...pattern };
   });
@@ -43,4 +45,4 @@ function i18nJsonTransform (patterns = [{}], options = {}) {
   this.apply = copyPlugin.apply;
 }
 
-export default i18nJsonTransform;
+export default I18nJsonTransform;
