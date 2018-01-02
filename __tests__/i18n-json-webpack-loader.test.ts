@@ -9,6 +9,7 @@ import {
   languages,
   loadTranslationFile,
   parser,
+  sanitizeTerms,
   tryToAddTerm,
 } from '../src/i18n-json-webpack-loader';
 

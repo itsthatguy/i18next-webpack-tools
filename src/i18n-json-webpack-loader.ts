@@ -1,5 +1,5 @@
 import { getOptions } from 'loader-utils';
-import { find, get, reduce } from 'lodash';
+import { find, get, reduce, reject } from 'lodash';
 import { outputFileSync, readdirSync, realpathSync, writeJsonSync } from 'fs-extra';
 import { join, resolve } from 'path';
 import { parse } from 'espree';
@@ -95,15 +95,17 @@ export const parser = (source) => {
   });
 };
 
+const isCreateElement = (entity) => get(entity, 'callee.property.name') === 'createElement';
+
+const isTrans = (args) => args && (
+  get(args[0], 'type') === 'MemberExpression'
+    && get(args[0], 'property.name') === 'Trans'
+);
+
 // NOTE: Should `createElement` or `Trans` be configurable?
 const isTranslationFunction = (entity) => {
   const translationFunction = OPTIONS.translationFunction;
-  const isCreateElement = get(entity, 'callee.property.name') === 'createElement';
-  const isTrans = (args) => args && (
-    get(args[0], 'type') === 'MemberExpression'
-      && get(args[0], 'property.name') === 'Trans'
-  )
-  return isTrans(entity.arguments);
+  return isCreateElement(entity) && isTrans(entity.arguments);
 };
 
 const findTerm = (term, file) => {
@@ -111,14 +113,64 @@ const findTerm = (term, file) => {
   return match;
 };
 
-export const findTerms = (translationsFunctions) => {
-  return translationsFunctions.reduce((result, translationFunction) => {
-    return translationFunction.arguments.reduce((result, arg) => {
-      const term = get(arg, 'value');
-      if (term) result.push(term);
+const replaceTags = (tree) => {
+  let i = 0;
+  const it = (result, entity) => {
+    if (isCreateElement(entity) && isTrans(entity)) return result;
+
+    if (isCreateElement(entity) && !isTrans(entity)) {
+      entity.arguments[0].value = i;
+      entity.arguments[0].raw = `"${i}"`;
+      entity.arguments = reject(entity.arguments, { type: 'ObjectExpression' });
+
+      i++;
+      entity.arguments.reduce(it, []);
+    }
+    result.push(entity);
+    return result;
+  };
+
+  return tree.reduce(it, []);
+};
+
+const generateHtml = (tree) => {
+  const isLiteral = entity => entity.type === 'Literal';
+  const hasValue = entity => entity.value && entity.value.length > 0;
+
+  const it = (result, entity) => {
+    let text = '';
+    if (isCreateElement(entity) && !isTrans(entity)) {
+      let open = `<${entity.arguments[0].value}>`;
+      let close = `</${entity.arguments[0].value}>`;
+      let contents = entity.arguments.reduce(it, '');
+      const value = open + contents + close;
+      result = `${result}${value}`;
       return result;
-    }, result);
+    }
+
+    if (isLiteral(entity) && hasValue(entity)) {
+      result = `${result}${entity.value}`;
+      return result;
+    }
+
+    return result;
+  };
+
+  return tree.reduce(it, '');
+};
+
+export const sanitizeTerms = (transComponents) => {
+  const newTree = transComponents.reduce((result, trans) => {
+    result.push(replaceTags(trans));
+    return result;
   }, []);
+
+  const foo = transComponents.map(generateHtml);
+  console.log('foo', foo);
+};
+
+export const findTerms = (translationsFunctions) => {
+  return [];
 };
 
 export default function loader (source, map) {
