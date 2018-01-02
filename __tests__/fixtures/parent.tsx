@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { translate } from 'react-i18next';
+import { Trans, translate } from 'react-i18next';
 import Child from './child';
 
 interface Props {
@@ -13,8 +13,8 @@ class MyComponent extends React.Component<Props, any> {
     return (
       <div>
         <h1>Parent</h1>
-        <div>{t("Hello")}</div>
-        <div>{t('Hello {{name}}', { name: 'Annalise' })}</div>
+        <Trans>Hello</Trans>
+        <Trans name='Annalise'>Hello {{name}}</Trans>
         <Child />
       </div>
     );

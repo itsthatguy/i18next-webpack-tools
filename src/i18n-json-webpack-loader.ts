@@ -29,7 +29,7 @@ export interface Loader {
 const APP_ROOT = realpathSync(process.cwd()) || process.cwd();
 
 const defaultOptions = {
-  translationFunction: 't',
+  translationFunction: 'Trans',
   translationsDir: resolve(APP_ROOT, 'lib/locales'),
 };
 
@@ -76,7 +76,7 @@ export const findTranslationFunctions = (tree) => {
     }
     if (Object.prototype.toString.call(entity) === '[object Object]') {
       if (isTranslationFunction(entity)) {
-        result.push(entity);
+        result.push(entity.arguments);
         return result;
       }
       return reduce(entity, iteratee, result);
@@ -95,9 +95,15 @@ export const parser = (source) => {
   });
 };
 
+// NOTE: Should `createElement` or `Trans` be configurable?
 const isTranslationFunction = (entity) => {
   const translationFunction = OPTIONS.translationFunction;
-  return get(entity, 'callee.name') === translationFunction;
+  const isCreateElement = get(entity, 'callee.property.name') === 'createElement';
+  const isTrans = (args) => args && (
+    get(args[0], 'type') === 'MemberExpression'
+      && get(args[0], 'property.name') === 'Trans'
+  )
+  return isTrans(entity.arguments);
 };
 
 const findTerm = (term, file) => {

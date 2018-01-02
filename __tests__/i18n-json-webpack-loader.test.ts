@@ -27,10 +27,19 @@ describe('i18n-json-loader', () => {
     it('finds Trans Component objects', () => {
       const oneThing = parseFile('./fixtures/child.tsx');
       const twoThings = parseFile('./fixtures/parent.tsx');
-      const oneMatches = findTranslationFunctions(oneThing);
-      const twoMatches = findTranslationFunctions(twoThings);
-      oneMatches.forEach((match) => expect(match).toMatchObject({ callee: { name: 't' } }));
-      twoMatches.forEach((match) => expect(match).toMatchObject({ callee: { name: 't' } }));
+      const oneFunctions = findTranslationFunctions(oneThing);
+      const twoFunctions = findTranslationFunctions(twoThings);
+      const verifyMatch = (collection): any[] => {
+        return collection.reduce((result, match) => {
+          const found = find(match, { property: { name: 'Trans' } });
+          if (found) result.push(found);
+          return result;
+        }, []);
+      };
+      const oneMatches = verifyMatch(oneFunctions);
+      const twoMatches = verifyMatch(twoFunctions);
+      expect(oneMatches.length).toEqual(1);
+      expect(twoMatches.length).toEqual(2);
     });
 
     it('finds Trans Component text', () => {
