@@ -51,10 +51,6 @@ const findTerm = (term, file) => {
   return match;
 };
 
-export const findTerms = (translationsFunctions) => {
-  return [];
-};
-
 const addTerm = (filePath, term, translations) => {
   const newContents = [ ...translations, { term, definition: '' } ];
 

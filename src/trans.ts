@@ -18,6 +18,7 @@ const isTranslationFunction = (entity) => {
   const translationFunction = OPTIONS.translationFunction;
   return isCreateElement(entity) && isTrans(entity.arguments);
 };
+
 const replaceTags = (tree) => {
   const it = (collection, i, r) => collection.reduce((result, entity) => {
     const isTransEntity = isTrans(entity);

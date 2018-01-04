@@ -4,14 +4,19 @@ import path from 'path';
 import { compact, filter, find, flatten } from 'lodash';
 import { transpile } from 'typescript';
 import {
-  findTerms,
-  findTranslationFunctions,
-  languages,
-  loadTranslationFile,
   parser,
-  sanitizeTerms,
   tryToAddTerm,
 } from '../src/i18n-json-webpack-loader';
+
+import {
+  findTranslationFunctions,
+  sanitizeTerms,
+} from '../src/trans';
+
+import {
+  languages,
+  loadTranslationFile,
+} from '../src/util/file';
 
 const fs = require.requireActual('fs');
 
@@ -40,7 +45,7 @@ describe('i18n-json-loader', () => {
       const oneMatches = verifyMatch(oneFunctions);
       const twoMatches = verifyMatch(twoFunctions);
       expect(oneMatches.length).toEqual(1);
-      expect(twoMatches.length).toEqual(2);
+      expect(twoMatches.length).toEqual(3);
     });
 
     it('finds Trans Component text', () => {
@@ -48,30 +53,49 @@ describe('i18n-json-loader', () => {
       const twoThings = parseFile('./fixtures/parent.tsx');
       const oneTransFunctions = findTranslationFunctions(oneThing);
       const twoTransFunctions = findTranslationFunctions(twoThings);
-      const oneMatches = findTerms(oneTransFunctions);
-      const twoMatches = findTerms(twoTransFunctions);
+      const oneMatches = sanitizeTerms(oneTransFunctions);
+      const twoMatches = sanitizeTerms(twoTransFunctions);
       expect(oneMatches).toEqual(expect.arrayContaining([
-        "Text with a <div>Div</div>",
-        "Hello from {{one}} thing's file",
-        "{{count}} dogs"
+        "Text with a <1>one</1>yep <3>{{dog}}</3> dude<5>three</5>A second text with a<7>five<1></1><2>two</2><3>three<1>one</1></3></7><8>six</8><9><0>zero</0>seven</9>",
+        // "Hello from {{one}} thing's file",
+        // "{{count}} dogs"
       ]));
       expect(twoMatches).toEqual(expect.arrayContaining([
+        "Hello <1>{{name}}</1> it's <3>{{day}}</3>",
         'Hello',
-        'Hello {{name}}',
+        '<0>{{boys}}</0> and <2>{{girls}}</2>'
       ]));
+    });
+
+    it('replaces html tags in Trans contents with sequential numbers', () => {
+      const oneThing = parseFile('./fixtures/child.tsx');
+      const twoThings = parseFile('./fixtures/parent.tsx');
+      const oneTransFunctions = findTranslationFunctions(oneThing);
+      const twoTransFunctions = findTranslationFunctions(twoThings);
+
+      const oneTerms = sanitizeTerms(oneTransFunctions);
+      const twoTerms = sanitizeTerms(twoTransFunctions);
+      const oneMatches = oneTerms.map(m => m.match(/(\d)/mgi))
+      const twoMatches = twoTerms.map(m => m.match(/(\d)/mgi))
+      expect(oneMatches[0]).toEqual(['1', '1', '3', '3', '5', '5', '7', '1', '1', '2', '2', '3', '1', '1', '3', '7', '8', '8', '9', '0', '0', '9' ]);
+      expect(twoMatches).toEqual([
+        ['0', '0', '2', '2'],
+        null,
+        ['1', '1', '3', '3'],
+      ]);
     });
   });
 
   describe('Locale Files', () => {
     let tree;
+    let terms;
     let transFunctions;
-    let matches;
     let LANGUAGES;
 
     beforeEach(() => {
       tree = parseFile('./fixtures/child.tsx');
       transFunctions = findTranslationFunctions(tree);
-      matches = findTerms(transFunctions);
+      terms = sanitizeTerms(transFunctions);
 
       LANGUAGES = languages();
     });
@@ -80,17 +104,18 @@ describe('i18n-json-loader', () => {
       let matchCounter = 0;
       LANGUAGES.forEach((dir) => {
         const localeFile = loadTranslationFile(dir);
-        matches.forEach((term) => {
+        console.log(terms);
+        terms.forEach((term) => {
           const match = find(localeFile, { term });
           if (match) matchCounter++;
         })
       });
-      expect(matchCounter).toEqual(9);
+      expect(matchCounter).toEqual(3);
     });
 
     it('does not add existing terms', () => {
       let newContents = [];
-      matches.forEach((term) => {
+      terms.forEach((term) => {
         newContents.push(tryToAddTerm(term));
       });
       newContents = compact(flatten(newContents));
@@ -98,10 +123,10 @@ describe('i18n-json-loader', () => {
     });
 
     it('adds non-existent terms', () => {
-      matches.push('New Term');
+      terms.push('New Term');
 
       let newContents = [];
-      matches.forEach((term) => {
+      terms.forEach((term) => {
         newContents.push(tryToAddTerm(term));
       });
       newContents = compact(flatten(newContents));
