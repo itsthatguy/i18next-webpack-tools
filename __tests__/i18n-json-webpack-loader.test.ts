@@ -75,14 +75,13 @@ describe('i18n-json-loader', () => {
 
       const oneTerms = sanitizeTerms(oneTransFunctions);
       const twoTerms = sanitizeTerms(twoTransFunctions);
-      const oneMatches = oneTerms.map(m => m.match(/(\d)/mgi))
-      const twoMatches = twoTerms.map(m => m.match(/(\d)/mgi))
-      expect(oneMatches[0]).toEqual(['1', '1', '3', '3', '5', '5', '7', '1', '1', '2', '2', '3', '1', '1', '3', '7', '8', '8', '9', '0', '0', '9' ]);
-      expect(twoMatches).toEqual([
-        ['0', '0', '2', '2'],
-        null,
-        ['1', '1', '3', '3'],
-      ]);
+
+      const tagsToString = (terms) => terms.map(m => (m.match(/(\d)/mgi) || []).join(''));
+      const oneMatches = tagsToString(oneTerms);
+      const twoMatches = tagsToString(twoTerms);
+
+      expect(oneMatches).toEqual([ '1133557112231137889009' ]);
+      expect(twoMatches).toEqual([ '0022', '', '1133', ]);
     });
   });
 
