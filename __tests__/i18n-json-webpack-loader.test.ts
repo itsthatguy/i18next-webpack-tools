@@ -54,11 +54,11 @@ describe('i18n-json-loader', () => {
         const twoTransFunctions = findTransComponents(twoThings);
         const oneMatches = sanitizeTerms(oneTransFunctions);
         const twoMatches = sanitizeTerms(twoTransFunctions);
+
         expect(oneMatches).toEqual(expect.arrayContaining([
           "Text with a <1>one</1>yep <3>{{dog}}</3> dude<5>three</5>A second text with a<7>five<1></1><2>two</2><3>three<1>one</1></3></7><8>six</8><9><0>zero</0>seven</9>",
-          // "Hello from {{one}} thing's file",
-          // "{{count}} dogs"
         ]));
+
         expect(twoMatches).toEqual(expect.arrayContaining([
           "Hello <1>{{name}}</1> it's <3>{{day}}</3>",
           'Hello',
@@ -150,7 +150,7 @@ describe('i18n-json-loader', () => {
       expect(twoFunctions.length).toEqual(2);
     });
 
-    it('finds t() translations', () => {
+    it('finds t() terms', () => {
       const oneThing = parseFile('./fixtures/child.tsx');
       const twoThings = parseFile('./fixtures/parent.tsx');
       const oneFunctions = findTranslationFunctions(oneThing);
