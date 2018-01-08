@@ -1,6 +1,6 @@
 {
   "name": "i18next-webpack-tools",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "main": "dist/index.js",
   "license": "MIT",
   "types": "dist/index.d.ts",
