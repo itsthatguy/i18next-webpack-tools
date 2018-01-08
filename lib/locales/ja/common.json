@@ -1,22 +1,30 @@
 [
   {
+    "term": "<0>{{boys}}</0> and <2>{{girls}}</2>",
+    "definition": ""
+  },
+  {
     "term": "Hello",
-    "definition": "Japanese Hello"
-  },
-  {
-    "term": "Hello {{name}}",
     "definition": ""
   },
   {
-    "term": "Text with a <div>Div</div>",
+    "term": "Hello <1>{{name}}</1> it's <3>{{day}}</3>",
     "definition": ""
   },
   {
-    "term": "Hello from {{one}} thing's file",
+    "term": "Text with a <1>one</1>yep <3>{{dog}}</3> dude<5>three</5>A second text with a<7>five<1></1><2>two</2><3>three<1>one</1></3></7><8>six</8><9><0>zero</0>seven</9>",
     "definition": ""
   },
   {
-    "term": "{{count}} dogs",
+    "term": "{{count}} boys",
+    "definition": ""
+  },
+  {
+    "term": "{{count}} girls",
+    "definition": ""
+  },
+  {
+    "term": "woop",
     "definition": ""
   }
 ]

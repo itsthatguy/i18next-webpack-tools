@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { translate } from 'react-i18next';
+import { Trans, translate } from 'react-i18next';
 
 interface Props {
   t?: any;
@@ -8,14 +8,29 @@ interface Props {
 class MyComponent extends React.Component<Props, any> {
   render() {
     const { t } = this.props;
+    const dog = 'bulldog';
+    const foo = t('woop');
 
-    const text = t('Text with a <div>Div</div>');
     return (
       <div>
-        <h2>Child</h2>
-        <div>{text}</div>
-        <div>{t("Hello from {{one}} thing's file", { one: 'one' })}</div>
-        <div>{t("{{count}} dogs", { count: 3 })}</div>
+        a
+        This is before
+        <Trans>
+          Text with a <a href="#">one</a>
+          yep {{dog}} dude
+          <a>three</a>
+          A second text with a
+          <a href="#">
+            five
+            <img src='bar.png' />
+            <h1>two</h1>
+            <h3>three<span>one</span></h3>
+          </a>
+          <a>six</a>
+          <a><span>zero</span>seven</a>
+        </Trans>
+        This is after
+        This is an <img src='foo.png' /> after after
       </div>
     );
   }
