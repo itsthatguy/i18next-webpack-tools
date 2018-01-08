@@ -1,7 +1,6 @@
 import { get, reduce, reject } from 'lodash';
 import { OPTIONS } from './i18n-json-webpack-loader';
 
-
 const isCreateElement = (entity) => get(entity, 'callee.property.name') === 'createElement';
 
 const checkTransOn = (obj) => (
@@ -14,9 +13,9 @@ const isTrans = (args) => args
   || checkTransOn(args);
 
 // NOTE: Should `createElement` or `Trans` be configurable?
-const isTranslationFunction = (entity) => {
-  const translationFunction = OPTIONS.translationFunction;
-  return isCreateElement(entity) && isTrans(entity.arguments);
+const isTransComponent = (entity) => {
+  return isCreateElement(entity)
+    && isTrans(entity.arguments);
 };
 
 const replaceTags = (tree) => {
@@ -77,13 +76,13 @@ const generateHtml = (tree) => {
   return tree.reduce(it, '');
 };
 
-export const findTranslationFunctions = (tree) => {
+export const findTransComponents = (tree) => {
   const iteratee = (result, entity) => {
     if (Array.isArray(entity)) {
       return reduce(entity, iteratee, result);
     }
     if (Object.prototype.toString.call(entity) === '[object Object]') {
-      if (isTranslationFunction(entity)) {
+      if (isTransComponent(entity)) {
         result.push(entity.arguments);
         return result;
       }

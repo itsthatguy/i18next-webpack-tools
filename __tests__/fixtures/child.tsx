@@ -7,7 +7,9 @@ interface Props {
 
 class MyComponent extends React.Component<Props, any> {
   render() {
+    const { t } = this.props;
     const dog = 'bulldog';
+    const foo = t('woop');
 
     return (
       <div>

@@ -4,7 +4,8 @@ import { join, resolve } from 'path';
 import { realpathSync, writeJsonSync } from 'fs-extra';
 import { parse } from 'espree';
 import { inspect, isObject } from 'util';
-import { findTranslationFunctions, sanitizeTerms } from './trans';
+import { findTransComponents, sanitizeTerms } from './trans';
+import { findTranslationFunctions, findTerms } from './t';
 import { languages, loadTranslationFile } from './util/file';
 
 export interface Loader {
@@ -31,7 +32,7 @@ export interface Loader {
 const APP_ROOT = realpathSync(process.cwd()) || process.cwd();
 
 const defaultOptions = {
-  translationFunction: 'Trans',
+  translationFunction: 't',
   translationsDir: resolve(APP_ROOT, 'lib/locales'),
   defaultLanguages: ['de', 'en', 'ja'],
 };
@@ -73,10 +74,16 @@ export default function loader (source, map) {
   OPTIONS = Object.assign({}, defaultOptions, getOptions(this));
 
   const tree = parser(source);
-  const translationFunctions = findTranslationFunctions(tree);
-  const terms = sanitizeTerms(translationFunctions);
 
-  terms.forEach(term => tryToAddTerm(term));
+  const transComponents = findTransComponents(tree);
+  const transTerms = sanitizeTerms(transComponents);
+
+  const translationFunctions = findTranslationFunctions(tree);
+  const translationFunctionsTerms = findTerms(translationFunctions);;
+
+  const mergedTerms = [ ...transTerms, ...translationFunctionsTerms ];
+
+  mergedTerms.forEach(term => tryToAddTerm(term));
 
   this.callback(null, source, map);
 };
