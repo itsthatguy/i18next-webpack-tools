@@ -3,7 +3,8 @@ import * as CopyPlugin from 'copy-webpack-plugin';
 const transform = (buffer) => {
   const content = JSON.parse(buffer.toString());
   const newContent = content.reduce((result, translation) => {
-    const { definition, term } = translation;
+    const { term } = translation;
+    const definition = translation.definition || '';
     const { one, other, many, few } = definition;
     if (typeof definition !== 'object') {
       let def = (typeof definition === 'string') && definition;
