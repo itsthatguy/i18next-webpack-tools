@@ -9,8 +9,15 @@
     "dist/index.js.map",
     "dist/i18n-json-transform-webpack-plugin.js",
     "dist/i18n-json-transform-webpack-plugin.js.map",
+    "dist/i18n-json-transform-webpack-plugin.js.map",
     "dist/i18n-json-webpack-loader.js",
-    "dist/i18n-json-webpack-loader.js.map"
+    "dist/i18n-json-webpack-loader.js.map",
+    "dist/t.js",
+    "dist/t.js.map",
+    "dist/trans.js",
+    "dist/trans.js.map",
+    "dist/util/file.js",
+    "dist/util/file.js.map"
   ],
   "scripts": {
     "dev": "webpack-dev-server",
