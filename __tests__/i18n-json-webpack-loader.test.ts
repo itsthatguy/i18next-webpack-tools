@@ -3,18 +3,12 @@ jest.mock('fs-extra');
 import path from 'path';
 import { compact, filter, find, flatten } from 'lodash';
 import { transpile } from 'typescript';
-import {
-  parser,
-  tryToAddTerm,
-} from '../src/i18n-json-webpack-loader';
+import { parser, tryToAddTerm } from '../src/i18n-json-webpack-loader';
 
 import { findTransComponents, sanitizeTerms } from '../src/trans';
 import { findTranslationFunctions, findTerms } from '../src/t';
 
-import {
-  languages,
-  loadTranslationFile,
-} from '../src/util/file';
+import { languages, loadTranslationFile } from '../src/util/file';
 
 const fs = require.requireActual('fs');
 
