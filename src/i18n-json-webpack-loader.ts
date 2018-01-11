@@ -8,6 +8,7 @@ import { inspect, isObject } from 'util';
 import { findTransComponents, sanitizeTerms } from './trans';
 import { findTranslationFunctions, findTerms } from './t';
 import { languages, loadTranslationFile } from './util/file';
+import { stringify } from 'querystring';
 
 export interface Loader {
   _compiler: any;
@@ -63,24 +64,24 @@ const stringifyTerms = (terms) => {
     s += c;
   }
 
-  return s;
+  return s + "\n";
 }
 
-const addTerm = (filePath, term, translations) => {
-  const newContents = stringifyTerms([ ...translations, { term, definition: '' } ]);
-  return writeFileSync(filePath, newContents);
-};
-
-export const maybeAddTerm = (term) => {
-  return languages().map((dir) => {
+export const writeTermsToFiles = (terms: any[]) => {
+  return languages().reduce((result, dir) => {
     const translations = loadTranslationFile(dir) || [];
-    const match = findTerm(term, translations);
-    if (!match) {
-      const filePath = join(OPTIONS.translationsDir, dir, 'common.json');
-      const newContents = addTerm(filePath, term, translations);
-      return Object.assign({}, { dir: dir, contents: newContents });
-    }
-  });
+    const termsToWrite = terms.reduce((result, term) => {
+      const match = findTerm(term, translations);
+
+      if (!match) result.push({ term, definition: '' });
+      return result;
+    }, []);
+
+    const blep = stringifyTerms([ ...translations, ...termsToWrite ]);
+    const filePath = join(OPTIONS.translationsDir, dir, 'common.json');
+    result[dir] = writeFileSync(filePath, blep, 'utf8');
+    return result;
+  }, {});
 };
 
 export default function loader (source, map) {
@@ -92,11 +93,10 @@ export default function loader (source, map) {
   const transTerms = sanitizeTerms(transComponents);
 
   const translationFunctions = findTranslationFunctions(tree);
-  const translationFunctionsTerms = findTerms(translationFunctions);;
+  const translationFunctionsTerms = findTerms(translationFunctions);
 
   const mergedTerms = [ ...transTerms, ...translationFunctionsTerms ];
-
-  mergedTerms.forEach(term => maybeAddTerm(term));
+  writeTermsToFiles(mergedTerms);
 
   this.callback(null, source, map);
 };

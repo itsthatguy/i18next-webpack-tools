@@ -2,7 +2,7 @@ const { ensureDirSync, outputFileSync, readdirSync, realpathSync } = require.req
 
 const fs = {};
 
-fs.writeJsonSync = (path, contents, options) => contents;
+fs.writeFileSync = (path, contents, options) => contents;
 
 fs.outputFileSync = outputFileSync;
 fs.readdirSync = readdirSync;

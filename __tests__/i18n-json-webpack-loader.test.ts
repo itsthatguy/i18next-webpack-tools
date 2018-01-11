@@ -3,7 +3,7 @@ jest.mock('fs-extra');
 import path from 'path';
 import { compact, filter, find, flatten } from 'lodash';
 import { transpile } from 'typescript';
-import { parser, tryToAddTerm } from '../src/i18n-json-webpack-loader';
+import { parser, writeTermsToFiles } from '../src/i18n-json-webpack-loader';
 
 import { findTransComponents, sanitizeTerms } from '../src/trans';
 import { findTranslationFunctions, findTerms } from '../src/t';
@@ -103,33 +103,6 @@ describe('i18n-json-loader', () => {
         });
         expect(matchCounter).toEqual(3);
       });
-
-      it('does not add existing terms', () => {
-        let newContents = [];
-        terms.forEach((term) => {
-          newContents.push(tryToAddTerm(term));
-        });
-        newContents = compact(flatten(newContents));
-        expect(newContents).toEqual([])
-      });
-
-      it('adds non-existent terms', () => {
-        terms.push('New Term');
-
-        let newContents = [];
-        terms.forEach((term) => {
-          newContents.push(tryToAddTerm(term));
-        });
-        newContents = compact(flatten(newContents));
-
-        const en = find(newContents, { dir: 'en' });
-        const de = find(newContents, { dir: 'de' });
-        const ja = find(newContents, { dir: 'ja' });
-
-        expect(en.contents).toEqual(expect.arrayContaining([{ term: 'New Term', definition: '' }]));
-        expect(de.contents).toEqual(expect.arrayContaining([{ term: 'New Term', definition: '' }]));
-        expect(ja.contents).toEqual(expect.arrayContaining([{ term: 'New Term', definition: '' }]));
-      });
     });
   });
 
@@ -154,6 +127,31 @@ describe('i18n-json-loader', () => {
 
       expect(oneMatches).toEqual(expect.arrayContaining(['woop']));
       expect(twoMatches).toEqual(expect.arrayContaining(['{{count}} boys', '{{count}} girls']));
+    });
+  });
+
+  describe('writeTermsToFiles()', () => {
+    it('adds new terms', () => {
+      const terms = [ 'butt', 'butt2', 'butt3' ];
+      const expectedTerms = [
+        { term: 'butt', definition: '' },
+        { term: 'butt2', definition: '' },
+        { term: 'butt3', definition: '' },
+      ];
+      const output = writeTermsToFiles(terms);
+
+      const de = JSON.parse(output.de);
+      const en = JSON.parse(output.en);
+      const ja = JSON.parse(output.ja);
+
+      expect(de).toEqual(expect.arrayContaining(expectedTerms))
+      expect(de.length).toEqual(10);
+
+      expect(en).toEqual(expect.arrayContaining(expectedTerms));
+      expect(en.length).toEqual(10);
+
+      expect(ja).toEqual(expect.arrayContaining(expectedTerms));
+      expect(ja.length).toEqual(10);
     });
   });
 });
