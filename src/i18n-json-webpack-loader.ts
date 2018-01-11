@@ -1,9 +1,10 @@
 import { getOptions } from 'loader-utils';
 import { find } from 'lodash';
 import { join, resolve } from 'path';
-import { realpathSync, writeJsonSync } from 'fs-extra';
+import { realpathSync, writeFileSync } from 'fs-extra';
 import { parse } from 'espree';
 import { inspect, isObject } from 'util';
+
 import { findTransComponents, sanitizeTerms } from './trans';
 import { findTranslationFunctions, findTerms } from './t';
 import { languages, loadTranslationFile } from './util/file';
@@ -52,13 +53,25 @@ const findTerm = (term, file) => {
   return match;
 };
 
-const addTerm = (filePath, term, translations) => {
-  const newContents = [ ...translations, { term, definition: '' } ];
+const stringifyTerms = (terms) => {
+  const jsonText = JSON.stringify(terms, null, 2);
+  var s = '';
 
-  return writeJsonSync(filePath, newContents, { spaces: 2 });
+  for (var i = 0; i < jsonText.length; ++i) {
+    var c = jsonText[i];
+    if (c >= '\x7F') c = '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
+    s += c;
+  }
+
+  return s;
+}
+
+const addTerm = (filePath, term, translations) => {
+  const newContents = stringifyTerms([ ...translations, { term, definition: '' } ]);
+  return writeFileSync(filePath, newContents);
 };
 
-export const tryToAddTerm = (term) => {
+export const maybeAddTerm = (term) => {
   return languages().map((dir) => {
     const translations = loadTranslationFile(dir) || [];
     const match = findTerm(term, translations);
@@ -83,7 +96,7 @@ export default function loader (source, map) {
 
   const mergedTerms = [ ...transTerms, ...translationFunctionsTerms ];
 
-  mergedTerms.forEach(term => tryToAddTerm(term));
+  mergedTerms.forEach(term => maybeAddTerm(term));
 
   this.callback(null, source, map);
 };
