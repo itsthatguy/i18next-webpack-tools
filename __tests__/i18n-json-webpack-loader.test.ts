@@ -153,5 +153,16 @@ describe('i18n-json-loader', () => {
       expect(ja).toEqual(expect.arrayContaining(expectedTerms));
       expect(ja.length).toEqual(10);
     });
+
+    it('writes terms in asciibetical order', () => {
+      const terms = [ 'abc', '{{thing}}', 'bcd', '12', 'zzz' ];
+      const output = writeTermsToFiles(terms);
+
+      const en = JSON.parse(output.en);
+      const outputTerms = en.map(translation => translation.term);
+      const sortedOutputTerms = [ ...outputTerms ].sort((a, b) => a.localeCompare(b));
+
+      expect(outputTerms).toEqual(sortedOutputTerms);
+    });
   });
 });

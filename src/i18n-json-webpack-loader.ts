@@ -70,6 +70,8 @@ const stringifyTerms = (terms) => {
 export const writeTermsToFiles = (terms: any[]) => {
   return languages().reduce((result, dir) => {
     const translations = loadTranslationFile(dir) || [];
+    const filePath = join(OPTIONS.translationsDir, dir, 'common.json');
+
     const termsToWrite = terms.reduce((result, term) => {
       const match = findTerm(term, translations);
 
@@ -77,9 +79,10 @@ export const writeTermsToFiles = (terms: any[]) => {
       return result;
     }, []);
 
-    const blep = stringifyTerms([ ...translations, ...termsToWrite ]);
-    const filePath = join(OPTIONS.translationsDir, dir, 'common.json');
-    result[dir] = writeFileSync(filePath, blep, 'utf8');
+    const allTerms = [ ...translations, ...termsToWrite ];
+    const sortedTerms = allTerms.sort((a, b) => a.term.localeCompare(b.term));
+
+    result[dir] = writeFileSync(filePath, stringifyTerms(allTerms), 'utf8');
     return result;
   }, {});
 };
