@@ -23,7 +23,7 @@ export const transform = (buffer) => {
       );
     }
 
-    return Object.assign(result, { term });
+    return Object.assign(result, { [term]: term });
   }, {});
 
   return Buffer.from(JSON.stringify(newContent, null, 2));

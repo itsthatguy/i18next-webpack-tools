@@ -113,4 +113,28 @@ describe('i18n-json-transform-webpack-plugin', () => {
 
     expect(output).toEqual(expectedOutput);
   });
+
+  it('writes object definitions dynamically', () => {
+    const terms = [
+      {
+        term: 'term1',
+        definition: {
+          other: 'other'
+        }
+      },
+      {
+        term: 'term2',
+        definition: {
+          other: 'other2'
+        }
+      }
+    ];
+
+    const expectedOutput = { term1: 'other', term2: 'other2' };
+
+    const inputBuffer = objectToBuffer(terms);
+    const output = bufferToObject(transform(inputBuffer));
+
+    expect(output).toEqual(expectedOutput);
+  });
 });
