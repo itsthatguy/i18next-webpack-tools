@@ -6,6 +6,8 @@ export const transform = (buffer) => {
     const { term } = translation;
     const definition = translation.definition || '';
     const { one, other, many, few } = definition;
+    const plural = other || many || few;
+
     if (typeof definition !== 'object') {
       let def = (typeof definition === 'string') && definition;
       def = def || other || many || few || term;
@@ -15,15 +17,10 @@ export const transform = (buffer) => {
       );
     }
 
-    if (definition && one) {
-      const plural = other || many || few || term;
-      return Object.assign(result,
-        { [term]: one || term },
-        other && { [`${term}_plural`]: plural },
-      );
-    }
-
-    return Object.assign(result, { [term]: term });
+    return Object.assign(result,
+      { [term]: one || plural || term },
+      plural && { [`${term}_plural`]: plural || term },
+    );
   }, {});
 
   return Buffer.from(JSON.stringify(newContent, null, 2));

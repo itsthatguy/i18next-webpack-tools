@@ -130,7 +130,12 @@ describe('i18n-json-transform-webpack-plugin', () => {
       }
     ];
 
-    const expectedOutput = { term1: 'other', term2: 'other2' };
+    const expectedOutput = {
+      term1: 'other',
+      term1_plural: 'other',
+      term2: 'other2',
+      term2_plural: 'other2'
+    };
 
     const inputBuffer = objectToBuffer(terms);
     const output = bufferToObject(transform(inputBuffer));
