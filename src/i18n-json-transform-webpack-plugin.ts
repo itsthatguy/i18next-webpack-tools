@@ -1,6 +1,6 @@
 import * as CopyPlugin from 'copy-webpack-plugin';
 
-const transform = (buffer) => {
+export const transform = (buffer) => {
   const content = JSON.parse(buffer.toString());
   const newContent = content.reduce((result, translation) => {
     const { term } = translation;
