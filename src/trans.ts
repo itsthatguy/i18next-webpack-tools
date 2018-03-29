@@ -1,6 +1,4 @@
-import { get, reduce, reject } from 'lodash';
-import { OPTIONS } from './i18n-json-webpack-loader';
-import { generate } from 'escodegen';
+import { get, reduce } from 'lodash';
 
 export const isElement = entity =>
   get(entity, 'type') === 'CallExpression' &&
