@@ -1,65 +1,97 @@
 import { get, reduce, reject } from 'lodash';
 import { OPTIONS } from './i18n-json-webpack-loader';
+import { generate } from 'escodegen';
 
-const isCreateElement = (entity) => get(entity, 'callee.property.name') === 'createElement';
+export const isElement = entity =>
+  get(entity, 'type') === 'CallExpression' &&
+  get(entity, 'callee.property.name') === 'createElement';
 
-const checkTransOn = (obj) => (
-  get(obj, 'type') === 'MemberExpression'
-  && get(obj, 'property.name') === 'Trans'
-);
+export const isTrans = entity =>
+  isElement(entity) &&
+  (get(entity, 'arguments[0].name') === 'Trans' ||
+    get(entity, 'arguments[0].property.name') === 'Trans');
 
-const isTrans = (args) => args
-  && checkTransOn(args[0])
-  || checkTransOn(args);
+const isInterpolation = entity =>
+  get(entity, 'type') === 'ObjectExpression' &&
+  get(entity, 'properties').length === 1 &&
+  get(entity, 'properties[0].value.type') === 'Identifier';
 
-// NOTE: Should `createElement` or `Trans` be configurable?
-const isTransComponent = (entity) => {
-  return isCreateElement(entity)
-    && isTrans(entity.arguments);
-};
+const interpolationName = entity => get(entity, 'properties[0].value.name');
 
-const replaceTags = (tree) => {
-  const it = (collection, i, r) => collection.reduce((result, entity) => {
-    const isTransEntity = isTrans(entity);
-    if (isCreateElement(entity) && isTransEntity) return result;
+const isLiteral = entity => get(entity, 'type') === 'Literal';
+const hasValue = entity =>
+  typeof entity.value !== 'undefined' && entity.value !== null;
 
-    if (isCreateElement(entity) && !isTransEntity) {
-      entity.arguments[0].value = i;
-      entity.arguments[0].raw = `"${i}"`;
-      entity.arguments = reject(entity.arguments, { type: 'ObjectExpression' });
+// const isCreateElement = isElement
+// const isTransComponent = entity =>
+//   isComponent(entity) &&
 
-      entity.arguments = it(entity.arguments, -1, []);
+// const checkTransOn = obj =>
+//   get(obj, 'type') === 'MemberExpression' &&
+//   get(obj, 'property.name') === 'Trans';
+
+// // NOTE: Should `createElement` or `Trans` be configurable?
+// const isTransComponent = entity => {
+//   return isCreateElement(entity) && isTrans(entity.arguments);
+// };
+
+const replaceTagsRecursive = (collection, i, r) => {
+  // console.log('collection', i, collection.length, collection);
+  return collection.reduce((result, entity) => {
+    // console.log('entity', i, entity);
+    // console.log('entity[0]', entity[0]);
+    // console.log("entity.type: ", get(entity, 'type'));
+    // console.log("entity.property.name", get(entity, 'property.name'));
+    // const isTransEntity = isTrans(entity);
+    if (isElement(entity) && isTrans(entity)) {
+      // console.log('isTrans', entity)
+      return result;
     }
 
-    const isObjectExpression = get(entity, 'type') === 'ObjectExpression';
-    const firstProp = isObjectExpression && get(entity, 'properties')[0];
-    const isIdentifier = get(firstProp, 'value.type') === 'Identifier';
+    if (isElement(entity) && !isTrans(entity)) {
+      const [name, props, ...children] = entity.arguments;
+      name.value = i;
+      name.raw = `"${i}"`;
+      // console.log('entity', entity, i)
+      // entity.arguments[0].value = i;
+      // entity.arguments[0].raw = `"${i}"`;
+      // entity.arguments = reject(entity.arguments, { type: 'ObjectExpression' });
 
-    if (isObjectExpression && isIdentifier) {
+      console.log('children', children.length, children)
+      replaceTagsRecursive(children, 0, []);
+    }
+
+    if (isInterpolation(entity)) {
+      const variableName = interpolationName(entity);
+      const wrappedValue = `<${i}>{{${variableName}}}</${i}>`;
+
       entity.type = 'Literal';
-      entity.value = `<${i}>{{${firstProp.value.name}}}</${i}>`;
-      entity.raw = `"<${i}>{{${firstProp.value.name}}}</${i}>"`;
+      entity.value = wrappedValue;
+      entity.raw = `"${wrappedValue}"`;
     }
 
-    if (!isTransEntity && entity.value !== null) i++;
+    // console.log('entitas', entity);
+    // if (!isTrans(entity) && hasValue(entity)) i++;
+    i++;
 
     result.push(entity);
     return result;
   }, r);
-
-  return it(tree, 0, []);
 };
 
-const generateHtml = (tree) => {
-  const isLiteral = entity => entity.type === 'Literal';
-  const hasValue = entity => entity.value && entity.value.length > 0;
+export const replaceTags = tree => {
+  console.log('tree', tree.length, tree)
+  return replaceTagsRecursive(tree, 0, []);
+};
 
+const generateHtml = tree => {
   const it = (result, entity) => {
-    let text = '';
-    if (isCreateElement(entity) && !isTrans(entity)) {
-      let open = `<${entity.arguments[0].value}>`;
-      let close = `</${entity.arguments[0].value}>`;
-      let contents = entity.arguments.reduce(it, '');
+    if (isElement(entity) && !isTrans(entity)) {
+      const [name, props, ...children] = entity.arguments;
+      const elementName = name.value;
+      const open = `<${elementName}>`;
+      const close = `</${elementName}>`;
+      const contents = children.reduce(it, '');
       const value = open + contents + close;
       result = `${result}${value}`;
       return result;
@@ -76,14 +108,16 @@ const generateHtml = (tree) => {
   return tree.reduce(it, '');
 };
 
-export const findTransComponents = (tree) => {
+export const findTransComponents = tree => {
   const iteratee = (result, entity) => {
     if (Array.isArray(entity)) {
       return reduce(entity, iteratee, result);
     }
     if (Object.prototype.toString.call(entity) === '[object Object]') {
-      if (isTransComponent(entity)) {
-        result.push(entity.arguments);
+      if (isTrans(entity)) {
+        const [name, props, ...children] = entity.arguments;
+        result.push(children);
+
         return result;
       }
       return reduce(entity, iteratee, result);
@@ -94,12 +128,8 @@ export const findTransComponents = (tree) => {
   return reduce(tree, iteratee, []);
 };
 
-
-export const sanitizeTerms = (transComponents) => {
-  const newTree = transComponents.reduce((result, trans) => {
-    result.push(replaceTags(trans));
-    return result;
-  }, []);
+export const sanitizeTerms = transComponents => {
+  transComponents.forEach(replaceTags);
 
   return transComponents.map(generateHtml);
 };
