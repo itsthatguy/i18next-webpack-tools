@@ -22,29 +22,9 @@ const isLiteral = entity => get(entity, 'type') === 'Literal';
 const hasValue = entity =>
   typeof entity.value !== 'undefined' && entity.value !== null;
 
-// const isCreateElement = isElement
-// const isTransComponent = entity =>
-//   isComponent(entity) &&
-
-// const checkTransOn = obj =>
-//   get(obj, 'type') === 'MemberExpression' &&
-//   get(obj, 'property.name') === 'Trans';
-
-// // NOTE: Should `createElement` or `Trans` be configurable?
-// const isTransComponent = entity => {
-//   return isCreateElement(entity) && isTrans(entity.arguments);
-// };
-
 const replaceTagsRecursive = (collection, i, r) => {
-  // console.log('collection', i, collection.length, collection);
   return collection.reduce((result, entity) => {
-    // console.log('entity', i, entity);
-    // console.log('entity[0]', entity[0]);
-    // console.log("entity.type: ", get(entity, 'type'));
-    // console.log("entity.property.name", get(entity, 'property.name'));
-    // const isTransEntity = isTrans(entity);
     if (isElement(entity) && isTrans(entity)) {
-      // console.log('isTrans', entity)
       return result;
     }
 
@@ -52,12 +32,7 @@ const replaceTagsRecursive = (collection, i, r) => {
       const [name, props, ...children] = entity.arguments;
       name.value = i;
       name.raw = `"${i}"`;
-      // console.log('entity', entity, i)
-      // entity.arguments[0].value = i;
-      // entity.arguments[0].raw = `"${i}"`;
-      // entity.arguments = reject(entity.arguments, { type: 'ObjectExpression' });
 
-      console.log('children', children.length, children)
       replaceTagsRecursive(children, 0, []);
     }
 
@@ -70,8 +45,6 @@ const replaceTagsRecursive = (collection, i, r) => {
       entity.raw = `"${wrappedValue}"`;
     }
 
-    // console.log('entitas', entity);
-    // if (!isTrans(entity) && hasValue(entity)) i++;
     i++;
 
     result.push(entity);
@@ -80,7 +53,6 @@ const replaceTagsRecursive = (collection, i, r) => {
 };
 
 export const replaceTags = tree => {
-  console.log('tree', tree.length, tree)
   return replaceTagsRecursive(tree, 0, []);
 };
 

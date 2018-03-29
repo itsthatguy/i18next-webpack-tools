@@ -1,8 +1,7 @@
 jest.mock('fs-extra');
 
 import path from 'path';
-import { inspect } from 'util';
-import { compact, filter, find, flatten, matches } from 'lodash';
+import { find, matches } from 'lodash';
 import { transpile } from 'typescript';
 import { parser, writeTermsToFiles } from '../src/i18n-json-webpack-loader';
 
@@ -57,21 +56,21 @@ describe('i18n-json-loader', () => {
 
       it('finds Trans Component text', () => {
         const oneThing = parseFile('./fixtures/child.tsx');
-        // const twoThings = parseFile('./fixtures/parent.tsx');
+        const twoThings = parseFile('./fixtures/parent.tsx');
         const oneTransFunctions = findTransComponents(oneThing);
-        // const twoTransFunctions = findTransComponents(twoThings);
+        const twoTransFunctions = findTransComponents(twoThings);
         const oneMatches = sanitizeTerms(oneTransFunctions);
-        // const twoMatches = sanitizeTerms(twoTransFunctions);
+        const twoMatches = sanitizeTerms(twoTransFunctions);
 
         expect(oneMatches).toEqual(expect.arrayContaining([
           "Text with a <1>one</1>yep <3>{{dog}}</3> dude<5>three</5>A second text with a<7>five<1></1><2>two</2><3>three<1>one</1></3></7><8>six</8><9><0>zero</0>seven</9>",
         ]));
 
-        // expect(twoMatches).toEqual(expect.arrayContaining([
-        //   "Hello <1>{{name}}</1> it's <3>{{day}}</3>",
-        //   'Hello',
-        //   '<0>{{boys}}</0> and <2>{{girls}}</2>'
-        // ]));
+        expect(twoMatches).toEqual(expect.arrayContaining([
+          "Hello <1>{{name}}</1> it's <3>{{day}}</3>",
+          'Hello',
+          '<0>{{boys}}</0> and <2>{{girls}}</2>'
+        ]));
       });
 
       it('replaces html tags in Trans contents with sequential numbers', () => {

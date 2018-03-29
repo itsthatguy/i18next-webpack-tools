@@ -45,12 +45,11 @@ describe('trans utils', () => {
       const program = parse(`
         <Trans>
           <div>
-            zero
             <span>
-              zero
-              <span>
-                zero
-              </span>
+              innerZero
+            </span>
+            <span>
+              innerOne
             </span>
           </div>
           <span>one</span>
@@ -60,7 +59,7 @@ describe('trans utils', () => {
       const found = findTransComponents(program);
       const terms = sanitizeTerms(found);
 
-      expect(terms).toEqual(['<0>zero<0>zero<0>zero</0></0></0><1>one</1><2>two</2>']);
+      expect(terms[0]).toEqual('<0><0>innerZero</0><1>innerOne</1></0><1>one</1><2>two</2>');
     });
 
     it('wraps an interpolation in a tag', () => {
