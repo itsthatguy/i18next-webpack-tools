@@ -1,7 +1,7 @@
 jest.mock('fs-extra');
 
 import path from 'path';
-import { find, matches } from 'lodash';
+import { find } from 'lodash';
 import { transpile } from 'typescript';
 import { parser, writeTermsToFiles } from '../src/i18n-json-webpack-loader';
 
@@ -20,17 +20,6 @@ const parseFile = (relativePath) => {
   return tree;
 };
 
-const isTrans = matches({ property: { name: 'Trans' }})
-
-const transMatches = (collection): any[] => {
-  return collection.reduce((matches, item) => {
-    const transMatch = find(item, isTrans)
-    transMatch && matches.push(transMatch);
-
-    return matches;
-  }, []);
-};
-
 describe('i18n-json-loader', () => {
   describe('<Trans />', () => {
     describe('Source Parsing', () => {
@@ -39,11 +28,9 @@ describe('i18n-json-loader', () => {
         const parsedParent = parseFile('./fixtures/parent.tsx');
         const childComponents = findTransComponents(parsedChild);
         const parentComponents = findTransComponents(parsedParent);
-        const childMatches = transMatches(childComponents);
-        const parentMatches = transMatches(parentComponents);
 
-        expect(childMatches.length).toEqual(1);
-        expect(parentMatches.length).toEqual(3);
+        expect(childComponents.length).toEqual(1);
+        expect(parentComponents.length).toEqual(3);
       });
 
       it('interpolation works within HTML tags', () => {
