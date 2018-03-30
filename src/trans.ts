@@ -1,22 +1,27 @@
 import { get, reduce } from 'lodash';
 
 export const isElement = entity =>
-  get(entity, 'type') === 'CallExpression' &&
-  get(entity, 'callee.property.name') === 'createElement';
+  get(entity, 'type') === 'CallExpression'
+  && get(entity, 'callee.property.name') === 'createElement';
 
 export const isTrans = entity =>
-  isElement(entity) &&
-  (get(entity, 'arguments[0].name') === 'Trans' ||
-    get(entity, 'arguments[0].property.name') === 'Trans');
+  isElement(entity)
+  && (
+    get(entity, 'arguments[0].name') === 'Trans'
+    || get(entity, 'arguments[0].property.name') === 'Trans'
+  );
 
 const isInterpolation = entity =>
-  get(entity, 'type') === 'ObjectExpression' &&
-  get(entity, 'properties').length === 1 &&
-  get(entity, 'properties[0].value.type') === 'Identifier';
+  get(entity, 'type') === 'ObjectExpression'
+  && get(entity, 'properties').length === 1
+  && get(entity, 'properties[0].value.type') === 'Identifier';
 
-const interpolationName = entity => get(entity, 'properties[0].value.name');
+const interpolationName = entity =>
+  get(entity, 'properties[0].value.name');
 
-const isLiteral = entity => get(entity, 'type') === 'Literal';
+const isLiteral = entity =>
+  get(entity, 'type') === 'Literal';
+
 const hasValue = entity =>
   typeof entity.value !== 'undefined' && entity.value !== null;
 
