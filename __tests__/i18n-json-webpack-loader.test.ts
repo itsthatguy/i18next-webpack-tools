@@ -1,7 +1,7 @@
 jest.mock('fs-extra');
 
 import path from 'path';
-import { compact, filter, find, flatten } from 'lodash';
+import { find } from 'lodash';
 import { transpile } from 'typescript';
 import { parser, writeTermsToFiles } from '../src/i18n-json-webpack-loader';
 
@@ -24,21 +24,21 @@ describe('i18n-json-loader', () => {
   describe('<Trans />', () => {
     describe('Source Parsing', () => {
       it('finds Trans Component objects', () => {
-        const oneThing = parseFile('./fixtures/child.tsx');
-        const twoThings = parseFile('./fixtures/parent.tsx');
-        const oneFunctions = findTransComponents(oneThing);
-        const twoFunctions = findTransComponents(twoThings);
-        const verifyMatch = (collection): any[] => {
-          return collection.reduce((result, match) => {
-            const found = find(match, { property: { name: 'Trans' } });
-            if (found) result.push(found);
-            return result;
-          }, []);
-        };
-        const oneMatches = verifyMatch(oneFunctions);
-        const twoMatches = verifyMatch(twoFunctions);
-        expect(oneMatches.length).toEqual(1);
-        expect(twoMatches.length).toEqual(3);
+        const parsedChild = parseFile('./fixtures/child.tsx');
+        const parsedParent = parseFile('./fixtures/parent.tsx');
+        const childComponents = findTransComponents(parsedChild);
+        const parentComponents = findTransComponents(parsedParent);
+
+        expect(childComponents.length).toEqual(1);
+        expect(parentComponents.length).toEqual(3);
+      });
+
+      it('interpolation works within HTML tags', () => {
+        const parsed = parseFile('./fixtures/interpolated.tsx');
+        const components = findTransComponents(parsed);
+        const terms = sanitizeTerms(components);
+
+        expect(terms[0]).toMatch('{{dog}}');
       });
 
       it('finds Trans Component text', () => {
