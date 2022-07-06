@@ -1,4 +1,4 @@
-# nauto-i18n
+# i18next-webpack-tools
 
 Main file: `loader.js`
 
